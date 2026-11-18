@@ -1,0 +1,10 @@
+{
+  "name": "隅间芳疗师原型",
+  "short_name": "隅间芳疗师",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#d8edfc",
+  "theme_color": "#d8edfc",
+  "lang": "zh-CN"
+}
