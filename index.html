@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>隅间手艺人 · 交互原型</title>
+<style>
+/* Captain home colors and component treatments. */
+:root {
+  --ink:#2a2a2d; --muted:#797584; --line:#1f1d2b14; --card:#fff;
+  --accent:#5856ef; --soft:#ebeaFF; --radius:10px;
+  color:var(--ink); font:15px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;
+}
+* { box-sizing:border-box; scrollbar-width:none }
+*::-webkit-scrollbar { display:none }
+html,body { overflow:hidden }
+
+body { margin:0; background:#f0f1ff }
+h1,h2,h3,p { margin:0 }
+h1 { font-size:20px }
+h2 { font-size:16px; font-weight:650 }
+h3 { font-size:15px }
+p,small,.muted { color:var(--muted) }
+small { font-size:12px }
+button,input,select,textarea { font:inherit }
+button { border:0; background:none; color:inherit; cursor:pointer; touch-action:manipulation }
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+button:active { opacity:.76 }
+.app {
+  max-width:500px; height:100dvh; margin:auto; display:flex; flex-direction:column;
+  background:radial-gradient(circle at -35px 698px,#ffe8dcd1,transparent 280px),linear-gradient(137deg,#e6e5fb,#f0f1ff 32%,#e5eaff);
+}
+.top {
+  flex:none; display:flex; justify-content:space-between; align-items:center;
+  padding:calc(6px + env(safe-area-inset-top)) 13px 0;
+}
+.top strong { font-size:16px; font-weight:650 }
+.top button { min-height:44px; font-size:13px }
+.dot:not(:empty) { display:inline-block; min-width:18px; border-radius:9px; background:var(--card); color:var(--accent) }
+main { flex:1; min-height:0; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; padding:8px 12px 22px }
+.intro,.desk-heading { margin:0 0 12px }
+.intro p,.desk-heading p { font-size:12px; margin-top:2px }
+.card,.task,.shortcut-box { border-radius:var(--radius); background:var(--card) }
+.card { padding:12px; margin-bottom:10px }
+.section,.desk-section { display:flex; justify-content:space-between; align-items:center; margin:16px 0 8px }
+.hero,.appointment {
+  position:relative; overflow:hidden; border-radius:12px; margin-bottom:12px; padding:14px;
+  background:linear-gradient(143.23deg,#9182fc 0%,#6361f7 46%,#5152eb 100%);
+  color:#ffffff;
+}
+.hero h2 { font-size:23px; margin:4px 0 }
+.hero p,.hero small,.booking p { color:#ffffff }
+.hero .cta,.appointment .cta { margin-top:11px }
+.cta,.soft { min-height:44px; padding:7px 13px; border-radius:8px; font-size:13px; font-weight:650 }
+.cta { background:var(--accent); color:white }
+.soft { background:var(--soft); color:#403db5 }
+.appointment .cta { background:#f6f5ff; color:#403db5; min-width:126px }
+.split { display:flex; align-items:center; justify-content:space-between; gap:8px }
+.appointment .split { justify-content:flex-start }
+.booking { margin-top:6px }
+.booking h2 { font-size:34px; line-height:1.13; font-weight:750; font-variant-numeric:tabular-nums }
+.booking p { font-size:12px }
+.tag { display:inline-block; padding:2px 7px; border-radius:5px; background:var(--soft); color:#403db5; font-size:11px; font-weight:650 }
+.tag.gray { background:#f0eff3; color:#534f63 }
+.tag.done { background:#e6f2e7; color:#345b36 }
+.shift-dates { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; border-radius:8px; padding:3px; background:#ffffff; margin-bottom:10px }
+.shift-dates button { min-height:44px; padding:2px; font-size:12px; white-space:nowrap; border-radius:6px; color:var(--muted) }
+.shift-dates b { margin-left:4px }
+.shift-dates .active { background:var(--soft); color:var(--accent); font-weight:700 }
+.task,.row { display:flex; align-items:center; gap:9px; width:100%; text-align:left; min-height:54px }
+.task { padding:10px 12px }
+.task-copy,.row>span:first-child { flex:1; min-width:0 }
+.task-copy strong,.task-copy small { display:block }
+.task-icon,.shortcut-icon,.thumb { display:grid; place-items:center; background:var(--soft); color:#403db5; border-radius:8px }
+.task-icon,.shortcut-icon { width:36px; height:36px; flex:none }
+.task-icon { font-size:11px; font-weight:650 }
+.task>.tag { white-space:nowrap }
+.row { justify-content:space-between; padding:9px 0 }
+.row+.row { border-top:1px solid var(--line) }
+.row:first-child { padding-top:0 }
+.row:last-child { padding-bottom:0 }
+.shortcut-box { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:10px 8px }
+.shortcut-box button { display:grid; justify-items:center; align-content:center; gap:4px; padding:0; min-height:60px; font-size:12px }
+.shortcut-icon svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linejoin:round }
+.grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px }
+.grid button { text-align:left; background:var(--card); border-radius:var(--radius); padding:9px; min-height:65px }
+.grid b { display:block; font-size:19px; font-variant-numeric:tabular-nums }
+.media { display:flex; gap:9px; align-items:center }
+.thumb { flex:0 0 36px; height:36px }
+.meter { height:7px; background:var(--soft); border-radius:7px; overflow:hidden; margin:9px 0 }
+.meter i { display:block; height:100%; background:#5856ef }
+.nav { flex:none; display:flex; justify-content:space-around; border-top:1px solid var(--line); background:var(--card); padding:4px 4px calc(4px + env(safe-area-inset-bottom)) }
+.nav button { display:grid; align-content:center; justify-items:center; gap:3px; flex:1; min-height:48px; font-size:11px; color:var(--muted) }
+.nav .active { color:var(--accent); font-weight:650 }
+.nav svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.7 }
+dialog { width:min(100%,500px); max-width:100%; max-height:88dvh; margin:auto auto 0; padding:14px 16px calc(16px + env(safe-area-inset-bottom)); border:0; border-radius:14px 14px 0 0; color:var(--ink); background:var(--card) }
+dialog::backdrop { background:#211d3666 }
+.sheet-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px }
+.sheet-head button { min-height:44px; min-width:44px; font-size:23px }
+.sheet p,.sheet label { margin:8px 0 }
+.sheet label { display:block }
+.sheet input,.sheet textarea,.sheet select { font-size:16px; padding:8px; border:1px solid #dbd9ff; background:#f6f5ff; border-radius:8px; color:inherit }
+.sheet input:not([type=radio]),.sheet textarea,.sheet select { min-height:44px; width:100% }
+.sheet textarea { min-height:80px }
+.sheet .cta { width:100%; margin-top:9px }
+.toast { position:fixed; z-index:2; bottom:calc(68px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); max-width:calc(100% - 24px); width:max-content; padding:8px 13px; border-radius:8px; background:#302e51; color:white }
+
+/* Translucent surfaces use an opaque fallback when backdrop filtering is unavailable. */
+.app {
+  background:
+    radial-gradient(ellipse at 98% 14%,#9c91f5,transparent 47%),
+    radial-gradient(ellipse at 0% 41%,#bddaff,transparent 51%),
+    radial-gradient(ellipse at 90% 64%,#ded1ff,transparent 50%),
+    linear-gradient(158deg,#eceaff,#f3f4ff 77%);
+}
+.hero,.appointment {
+  background:#eeebff;
+  color:#27234c;
+  border:1px solid #ffffffd9;
+  box-shadow:inset 0 1px 0 #fff,0 7px 18px #463b961f;
+}
+.hero p,.hero small,.booking p { color:#4c4673 }
+.appointment .cta { background:#4845cb; color:#fff }
+.hero .cta { background:#4845cb }
+.card,.task,.shortcut-box,.grid button,.shift-dates,.nav,dialog {
+  border:1px solid #ffffffd6;
+  box-shadow:inset 0 1px 0 #ffffffb3,0 4px 14px #51478c14;
+}
+.nav { z-index:1 }
+@supports (backdrop-filter:blur(1px)) {
+  .hero,.appointment {
+    background:linear-gradient(128deg,#ffffffb8,#f1eaff56 65%,#ffffff6b);
+    backdrop-filter:blur(14px) saturate(1.18);
+  }
+  .card,.task,.shortcut-box,.grid button,.shift-dates {
+    background:#ffffff88;
+    backdrop-filter:blur(12px);
+  }
+  .nav,dialog { background:#f9f8ffb8; backdrop-filter:blur(20px) saturate(1.16) }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .hero,.appointment,.card,.task,.shortcut-box,.grid button,.shift-dates,.nav,dialog {
+    background:#faf9ff;
+    backdrop-filter:none;
+  }
+}
+
+
+.app.learning-page {
+  --ink:#0e1831; --muted:#505e75; --accent:#194fcc; --soft:#deebfc;
+  container-type:inline-size;
+  background:#d9edfb url("./yujian-artisan-assets/learning-page-bg.png") center top / 100% 100% no-repeat;
+}
+.learning-page .top { display:none }
+.learning-page main { padding:calc(7.15cqw + env(safe-area-inset-top)) 2.82cqw 5cqw }
+.learning-page .intro { padding:0 .7cqw; margin:0 0 3.7cqw }
+.learning-page .intro h1 { font-size:5.65cqw; line-height:1.18; font-weight:750 }
+.learning-page .intro p { margin-top:1.15cqw; font-size:3.35cqw; line-height:1.35 }
+.hero.learning-hero {
+  position:relative; isolation:isolate; overflow:visible;
+  height:53.4cqw; margin:0 0 3.2cqw; padding:0;
+  border:1px solid #fff; border-radius:5.3cqw;
+  color:var(--ink);
+  background:#cce6fa url("./yujian-artisan-assets/learning-card-bg.png") center / cover no-repeat;
+  box-shadow:none;
+}
+.learning-art {
+  position:absolute; inset:0; z-index:-1; pointer-events:none;
+  clip-path:inset(-5cqw 0 38.5% 0);
+}
+.learning-character { position:absolute; left:3.5%; top:-8.1%; width:49%; height:auto }
+.learning-info {
+  position:absolute; inset:auto 2.6cqw 2.75cqw;
+  display:flex; align-items:center; justify-content:space-between; gap:2cqw;
+  min-height:18.1cqw; padding:2cqw 2.95cqw 2cqw 3.7cqw;
+  border:1px solid #fff; border-radius:4.2cqw;
+  background:linear-gradient(120deg,#f6fbfff0,#ecf6ffd9);
+}
+.learning-info h2 { font-size:4.7cqw; line-height:1.2; margin:0 0 1.05cqw; color:var(--ink); font-weight:750 }
+.learning-info p { color:var(--muted); font-size:3.35cqw }
+.learning-hero .learning-info .cta {
+  flex:none; margin:0; min-height:max(38px,11.55cqw); padding:0 3.9cqw; border-radius:2.25cqw;
+  background:linear-gradient(145deg,#2869db,#2556d1); color:white; font-size:3.75cqw;
+}
+.learning-page .card {
+  margin:0; padding:3.05cqw 3.55cqw; border:1px solid white; border-radius:3.8cqw;
+  background:linear-gradient(120deg,#f5faffde,#ecf6ffc9); box-shadow:none;
+}
+.learning-page .notice { min-height:18.4cqw; border-radius:2.85cqw }
+.learning-page .notice h3 { margin-top:1cqw; font-size:3.9cqw; line-height:1.3 }
+.learning-page .tag { padding:.45cqw 1.5cqw; border-radius:1.4cqw; background:#d7e8fc; color:var(--accent); font-size:3cqw }
+.learning-page .soft { min-height:max(38px,10cqw); padding:0 3.6cqw; border-radius:2.2cqw; background:#e0edfc; color:var(--accent); font-size:3.65cqw }
+.learning-page .notice .soft,.learning-page .section .soft { border:1px solid #ffffff76; background:#edf6ffc4 }
+.learning-page .section { margin:4.05cqw 0 2cqw; min-height:6.7cqw }
+.learning-page .section h2 { font-size:4.8cqw; font-weight:750 }
+.learning-page .tip-card { min-height:24.4cqw }
+.learning-page .row { min-height:17.8cqw; padding:0 }
+.learning-page .row .media { gap:3cqw; font-size:3.9cqw }
+.learning-page .row small { font-size:3.3cqw }
+.learning-page .row > span:last-child { font-size:5cqw }
+.learning-page .thumb { flex:0 0 9.65cqw; height:9.65cqw; border-radius:2.1cqw; background:#dceafa; color:var(--accent); font-size:4cqw }
+.learning-page .story-card { min-height:40.8cqw }
+.learning-page .story-card h3 { font-size:4.25cqw; margin:2.3cqw 0 1.85cqw }
+.learning-page .story-card p,.learning-page [data-act=vote] { font-size:3.8cqw }
+.learning-page .story-card .split { margin-top:3.1cqw }
+.learning-page .nav {
+  min-height:16.2cqw; padding:1.5cqw .8cqw calc(2.7cqw + env(safe-area-inset-bottom));
+  border:1px solid #fff; border-radius:4.25cqw 4.25cqw 0 0; background:#f1f8ffdf;
+}
+.learning-page .nav button { font-size:3.15cqw; gap:1cqw }
+.learning-page .nav svg { width:5.65cqw; height:5.65cqw }
+.learning-page .nav .active { color:#1642de }
+@supports (backdrop-filter:blur(12px)) {
+  .learning-info,.learning-page .nav { backdrop-filter:blur(14px) saturate(1.1) }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .learning-info,.learning-page .nav,.learning-page .card { background:#f5faff; backdrop-filter:none }
+}
+
+/* Shared glass surfaces for the workbench, performance, profile, and inbox. */
+.app {
+  --ink:#0e1831; --muted:#505e75; --accent:#194fcc; --soft:#deebfc;
+  color:var(--ink);
+  background:#d9edfb url("./yujian-artisan-assets/learning-page-bg.png") center top / 100% 100% no-repeat;
+}
+.app:not(.learning-page) .top { padding-inline:15px }
+.app:not(.learning-page) .top button { color:var(--accent); font-weight:650 }
+.app:not(.learning-page) main { padding:10px 12px 24px }
+.app:not(.learning-page) :is(.desk-heading,.intro) h1 { font-size:24px; line-height:1.25; font-weight:750 }
+.app:not(.learning-page) :is(.desk-heading,.intro) p { margin-top:4px; font-size:13px }
+.app:not(.learning-page) :is(.hero,.appointment) {
+  color:var(--ink);
+  border-radius:20px;
+  background:#d3e8fc url("./yujian-artisan-assets/learning-card-bg.png") center / cover no-repeat;
+  box-shadow:inset 0 1px 0 #fff8;
+}
+.app:not(.learning-page) :is(.hero,.appointment) p,.app:not(.learning-page) .hero small { color:var(--muted) }
+.app:not(.learning-page) :is(.card,.task,.shortcut-box,.grid button,.shift-dates) {
+  border-radius:14px;
+  background:linear-gradient(120deg,#f5faffde,#ecf6ffc9);
+  border:1px solid white;
+  box-shadow:none;
+}
+.app:not(.learning-page) .grid button { min-height:74px }
+.app:not(.learning-page) .grid b { color:#1849b2 }
+.app:not(.learning-page) .shift-dates .active { background:#d4e7ff; color:#1849b2 }
+.app:not(.learning-page) :is(.soft,.task-icon,.shortcut-icon,.thumb,.tag:not(.done):not(.gray)) { background:#dceafa; color:#194fcc }
+.app:not(.learning-page) .cta,.sheet .cta { background:linear-gradient(145deg,#2869db,#2556d1); color:white; border-radius:9px }
+.app:not(.learning-page) .nav { border:1px solid white; border-radius:17px 17px 0 0; background:#f1f8ffdf }
+.app:not(.learning-page) .nav .active { color:#1642de }
+dialog { border:1px solid white; border-radius:17px 17px 0 0; background:#f1f8ffed }
+dialog::backdrop { background:#182e5760 }
+.sheet input,.sheet select,.sheet textarea { background:#f9fcff; border-color:#c9daee }
+@supports (backdrop-filter:blur(12px)) {
+  .app:not(.learning-page) .nav,dialog { backdrop-filter:blur(14px) saturate(1.1) }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .app:not(.learning-page) :is(.card,.task,.shortcut-box,.grid button,.shift-dates,.nav),dialog { background:#f5faff; backdrop-filter:none }
+}
+.rotation-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; list-style:none; margin:8px 0 0; padding:0 }
+.rotation-grid li { min-width:0; display:flex; flex-direction:column; border:1px solid #fff; border-radius:9px; background:#f8fbffcf; overflow:hidden }
+.rotation-person { display:flex; justify-content:space-between; align-items:center; gap:2px; min-height:38px; padding:4px 5px }
+.rotation-status { margin-top:auto; text-align:center; font-size:11px; font-weight:650; padding:4px 2px }
+.rotation-status.free { color:#824209; background:#fff0da }
+.rotation-status.working { color:#235c36; background:#e1f4e8 }
+.rotation-status.off { color:#534f63; background:#eeedf3 }
+.own-rotation h2 { margin-bottom:9px }
+.own-rotation p { margin-top:4px; font-size:13px }
+.own-rotation .soft { margin-top:8px }
+.demo-state { display:flex; justify-content:flex-end; align-items:center; gap:8px }
+
+.commission-summary { display:grid; gap:2px; background:#deebfc; border-radius:14px; padding:12px 14px }
+.commission-summary strong { font-size:28px; color:#194fcc; font-variant-numeric:tabular-nums }
+.commission-filter { display:flex; flex-wrap:wrap; gap:4px; margin:9px 0 }
+.commission-filter .soft { padding-inline:9px }
+.commission-filter [aria-pressed=true] { background:#194fcc; color:white }
+.commission-entry .split>strong { color:#194fcc; font-variant-numeric:tabular-nums; white-space:nowrap }
+.commission-entry dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:9px 0 }
+.commission-entry dt { color:#505e75; font-size:12px }
+.commission-entry dd { margin:0; font-size:13px; overflow-wrap:anywhere }
+.commission-order { grid-column:1/-1 }
+
+.work-tabs {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px;
+  padding:4px; margin:0 0 12px; border:1px solid white; border-radius:13px;
+  background:#f1f8ffbf;
+}
+.work-tabs button { min-height:44px; border-radius:9px; color:var(--muted); font-weight:650 }
+.work-tabs [aria-pressed=true] { color:#194fcc; background:#d4e7ff }
+.work-commission .commission-filter { justify-content:space-between }
+.work-commission .commission-filter .soft { flex:1; white-space:nowrap; padding-inline:4px }
+.work-commission .commission-summary { border:1px solid white }
+.work-commission label { display:block; margin:8px 0 }
+.work-commission input { display:block; width:100%; min-height:44px; padding:7px; border:1px solid #c9daee; border-radius:8px; background:#f9fcff }
+.coaching-card article + article { border-top:1px solid var(--line); margin-top:12px; padding-top:12px }
+.coaching-card h3 { margin:3px 0 }
+.coaching-card p { font-size:13px; margin-bottom:8px }
+
+/* Figma revision — compact cards, greeting within the cover, five-item navigation. */
+.app {
+  color:#16213a;
+  background:#d8edfc url("./yujian-artisan-assets/learning-page-bg.png") center top/100% 100% no-repeat;
+}
+.top { display:none }
+main,.app:not(.learning-page) main,.learning-page main {
+  padding:calc(36px + env(safe-area-inset-top)) 12px 20px;
+}
+.store-heading { font-size:16px; font-weight:650; margin:0 0 22px }
+.app:not(.learning-page) :is(.desk-heading,.intro) h1 { font-size:18px; font-weight:650 }
+.app:not(.learning-page) :is(.desk-heading,.intro) p { font-size:12px }
+.hero.learning-hero {
+  height:200px; min-height:0; margin:0 0 20px; border-radius:10px;
+  border:1px solid #ffffffa8; box-shadow:none;
+}
+.learning-art { clip-path:inset(-16px 0 35% 0) }
+.learning-character { left:0; top:-14%; width:49% }
+.cover-greeting { position:absolute; top:34px; right:22px; text-align:right }
+.cover-greeting strong { font-size:16px; font-weight:650 }
+.cover-greeting p { font-size:12px; margin-top:6px; color:#505e75 }
+.learning-info {
+  inset:auto 10px 10px; min-height:72px; padding:10px 14px; gap:8px;
+  background:#f5fafff0; border:0; border-radius:8px; backdrop-filter:none;
+}
+.learning-info h2 { font-size:16px; line-height:1.3; margin-bottom:6px; font-weight:650 }
+.learning-info p { font-size:12px }
+.learning-hero .learning-info .cta {
+  min-height:36px; padding:0 17px; font-size:12px; border-radius:6px; background:#2856ce;
+}
+.learning-page .card,.app:not(.learning-page) :is(.card,.task,.shortcut-box,.grid button,.shift-dates) {
+  border-radius:9px; border:1px solid #ffffffb3; background:#f5faffeb; box-shadow:none;
+}
+.learning-page .card { padding:12px 14px }
+.learning-page .notice { min-height:72px; border-radius:9px }
+.learning-page .notice .tag { background:none; padding:0; font-size:12px; font-weight:650; border-radius:0 }
+.learning-page .notice h3 { font-size:14px; margin-top:5px }
+.learning-page .soft { min-height:36px; padding:0 14px; font-size:12px; border-radius:6px; background:#e0edfc }
+.learning-page .section { margin:20px 0 12px; min-height:0 }
+.learning-page .section h2 { font-size:16px; font-weight:650 }
+.learning-page .tip-card { min-height:82px }
+.learning-page .row { min-height:56px; position:relative }
+.learning-page .row>span:last-child { font-size:18px }
+.learning-page .row .media { font-size:14px; gap:12px }
+.learning-page .row small { font-size:12px }
+.learning-page .thumb { flex-basis:52px; height:56px; border-radius:9px; font-size:18px }
+.learning-page .story-card { min-height:162px; display:flex; flex-direction:column }
+.learning-page .story-card .tag { align-self:flex-start; padding:0; font-size:12px; background:none }
+.learning-page .story-card h3 { font-size:15px; margin:13px 0 9px }
+.learning-page .story-card p { font-size:12px }
+.learning-page .story-card .split { margin-top:auto; padding-top:22px }
+.learning-page [data-act=vote] { font-size:12px; padding:8px 0 }
+.app .nav,.learning-page .nav,.app:not(.learning-page) .nav {
+  flex:none; width:calc(100% - 24px); margin:0 12px calc(20px + env(safe-area-inset-bottom));
+  padding:4px; min-height:60px; border:1px solid #ffffffbd; border-radius:13px;
+  background:#f1f8ffbb; box-shadow:0 5px 14px #3f607d26;
+}
+.app .nav button { min-width:0; min-height:48px; font-size:10px; gap:4px; border-radius:10px; font-weight:400; color:#696b7a }
+.app .nav button.active { background:#f9fcfff0; color:#2856ce; font-weight:650; box-shadow:0 2px 7px #7390b21a }
+.app .nav svg { width:21px; height:21px }
+.app::after { content:''; flex:none; position:absolute; bottom:6px; left:50%; width:28%; height:4px; border-radius:4px; background:#1a2233; transform:translateX(-50%) }
+.app { position:relative }
+.app:not(.learning-page) .card { padding:12px }
+.app:not(.learning-page) .grid button { min-height:62px }
+.app:not(.learning-page) .grid b { font-size:18px }
+.work-tabs { margin-bottom:12px; border-radius:10px }
+.work-tabs button { border-radius:8px; min-height:40px }
+.work-tabs [aria-pressed=true] { background:#2856ce; color:white }
+.shortcut-box { grid-template-columns:repeat(2,minmax(0,1fr)) }
+.shortcut-box button { min-height:42px; display:flex; align-items:center; justify-content:center; font-weight:650 }
+.shortcut-box button+button { border-left:1px solid var(--line) }
+.shortcut-icon { display:none }
+@media(max-width:359px) {
+ .cover-greeting { right:14px } .cover-greeting strong { font-size:14px }
+ .learning-page .row .media { font-size:12px; gap:8px }
+}
+</style>
+<div class="app"><header class="top"><strong>隅间手艺人</strong><button data-page="消息">消息 <span class="dot" id="badge"></span></button></header><main id="main"></main><nav class="nav" aria-label="主导航" id="nav"></nav></div>
+<dialog id="dialog" aria-labelledby="title"><div class="sheet-head"><h2 id="title"></h2><button id="close" aria-label="关闭">×</button></div><div class="sheet" id="sheet"></div></dialog><div role="status" class="toast" id="toast" hidden></div>
+<script>
+const $=id=>document.getElementById(id);
+const state={page:location.hash==='#workbench'?'工作台':'首页',workTab:'rotation',assignment:null,read:new Set(),leave:'',voted:false,story:'',score:86};
+const icons=['M3 10l9-7 9 7v10H3z M9 20v-7h6v7','M4 7h16v13H4z M8 7V4h8v3 M4 12h16','M4 20V11 M12 20V4 M20 20v-7','M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8 M4 21a8 7 0 0 1 16 0'];
+const pages=['首页','工作台','个人业绩','消息','我的'];
+icons.splice(3,0,'M4 4h6v6H4z M14 4h6v6h-6z M4 14h6v6H4z M14 14h6v6h-6z');
+const intro=(title,desc)=>`<div class="intro"><h1>${title}</h1><p>${desc}</p></div>`;
+const section=(title,action='')=>`<div class="section"><h2>${title}</h2>${action}</div>`;
+const button=(label,id,style='soft')=>`<button class="${style}" data-open="${id}">${label}</button>`;
+const row=(label,desc,id,end='›')=>`<button class="row" data-open="${id}"><span><strong>${label}</strong><br><small>${desc}</small></span><span>${end}</span></button>`;
+function home(){return '<div class="store-heading">城西银泰店</div>'+
+`<section class="hero learning-hero"><div class="learning-art" aria-hidden="true"><img class="learning-character" src="./yujian-artisan-assets/learning-character.png" alt=""></div><div class="cover-greeting"><strong>天天，下午好</strong><p>又是美好的一天</p></div><div class="learning-info"><div><h2>理论题库</h2><p>上一次得分 ${state.score} 分</p></div>${button('继续答题','quiz','cta')}</div></section>
+<div class="card notice split"><div><span class="tag">复训通知</span><h3>11 月 12 日 14:00 · 手法复训</h3></div>${button('查看','training')}</div>`+
+section('服务技巧')+`<div class="card tip-card">${row('<span class="media"><span class="thumb">▷</span>顾客觉得力度太轻，怎么处理？</span>','服务小贴士 · 力度沟通','tip')}</div>`+
+section('手艺人短报')+`<div class="card story-card"><span class="tag">匠心服务</span><h3>记住客人每次都想加强的肩颈</h3><p>宝龙店 · 贝贝</p><div class="split"><button data-act="vote" aria-pressed="${state.voted}">${state.voted?'已送藕尖':'送藕尖'} · ${state.voted?19:18}</button><button class="soft" data-open="story">读故事</button></div></div>`+
+(state.story?'<div class="card"><span class="tag">待核实</span> <strong>我的故事提报</strong></div>':'')}
+const shortcuts=[
+ ['提报排休','leave','M5 5h14v15H5z M8 3v4 M16 3v4 M5 10h14'],
+ ['复训安排','training','M4 6q4-2 8 1 4-3 8-1v13q-4-2-8 0-4-2-8 0z M12 7v12']
+];
+const demoAssignment={name:'林女士',service:'肩颈舒缓 · 60 分钟',pressure:'偏重',focus:'肩颈、上背',avoid:'颈前',oil:'薰衣草'};
+const floorSchedule=[
+ {name:'贝贝',state:'free',status:'空闲'},
+ {name:'天天',state:'free',status:'空闲'},
+ {name:'丽丽',state:'free',status:'空闲'},
+ {name:'小雨',state:'working',status:'余 20′'},
+ {name:'小满',state:'off',status:'圈排中'},
+ {name:'安安',state:'off',status:'已下班'}
+];
+function rotation(){
+ const roster=floorSchedule.map(artisan=>artisan.name==='天天'&&state.assignment?{...artisan,state:'working',status:'待上钟'}:artisan);
+ const available=roster.filter(artisan=>artisan.state==='free');
+ const ownIndex=available.findIndex(artisan=>artisan.name==='天天');
+ const rows=roster.map(artisan=>
+  `<li><div class="rotation-person"><strong>${artisan.name}</strong></div><span class="rotation-status ${artisan.state}">${artisan.status}</span></li>`
+ ).join('');
+ return `<section class="card rotation"><div class="split"><h2>今日排班</h2><small>${state.assignment?'我已排到':ownIndex>0?`我前面还有 ${ownIndex} 位`:ownIndex===0?'下一位轮到我':'我暂未进入轮钟队列'}</small></div><ol class="rotation-grid">${rows}</ol></section>`;
+}
+function work(){
+ const isCommission=state.workTab==='commission';
+ const heading=`<div class="desk-heading"><h1>工作台</h1><p>杭州宝龙店 · 天天</p></div>
+ <div class="work-tabs" aria-label="工作台视图"><button data-work-tab="rotation" aria-pressed="${!isCommission}">轮钟</button><button data-work-tab="commission" aria-pressed="${isCommission}">个人提成</button></div>`;
+ if(isCommission)return heading+`<section class="work-commission" aria-label="个人提成">${commissionDetails()}</section>`;
+ const assignment=state.assignment;
+ const rotationStatus=assignment
+  ? `<div class="split"><strong>${assignment.name}</strong><span class="tag">待上钟</span></div><p>${assignment.service}</p><button class="soft" data-open="assignedGuest">查看顾客信息</button>`
+  : `<div class="split"><strong>预计 16:30 排到</strong><span class="tag">等待轮钟</span></div><p>根据今日轮钟和预约预估，以前台安排为准。</p>`;
+ const quick=`<div class="desk-section"><h2>常用入口</h2></div><div class="shortcut-box" aria-label="快捷入口">${shortcuts.map(([label,id,path])=>`<button data-open="${id}"><span class="shortcut-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${path}"/></svg></span>${id==='leave'&&state.leave?'排休待审核':label}</button>`).join('')}</div>`;
+ return heading+`${rotation()}<section class="card own-rotation"><h2>我的轮钟</h2>${rotationStatus}</section><div class="demo-state" aria-label="原型状态预览"><small>原型预览</small><button class="soft" data-act="toggleAssignment">${assignment?'预览等待轮钟':'预览待上钟'}</button></div>`+quick
+
+}
+function performance(){return intro('个人业绩','11 月 1 日–11 月 10 日')+`<div class="grid"><button data-open="repeat"><small>30 天复购率</small><b>32%</b></button><button data-open="point"><small>点钟</small><b>12 次</b></button><button data-open="review"><small>线上好评</small><b>16 条</b></button></div>`+section('顾客反馈与服务品质')+`<div class="card">${row('线上好评率','查看好评数据说明','review')}${row('负面评价','2 条 · 手法 1 条 / 服务 1 条','negative')}${row('品质账户','96 分 · 查看扣分和罚单','quality')}</div>` + section('提升建议')+
+ `<section class="card coaching-card">
+  <article><small>来自负面评价 · 力度偏轻、调整后未确认</small><h3>调整力度后，再问一次</h3><p>服务前问清力度和重点部位。调整后，问一句「现在这个力度合适吗？」</p>${button('查看力度沟通技巧','tip')}</article>
+  <article><small>来自品质账户 · 服务流程扣 4 分</small><h3>对照稽查记录复盘</h3><p>先查看具体扣分项，再对照该项门店服务标准练习。</p>${button('查看扣分记录','quality')}</article>
+ </section>`
+}
+
+function mine(){return intro('我的','天天 · 杭州宝龙店')+`<div class="hero"><small>当前等级</small><h2>中级芳疗师</h2><p>下一等级 · 高级芳疗师</p>${button('查看升级宝典 ›','growth','cta')}</div>`+section('成长记录')+`<div class="card">${row('任职 6 个月','已获 2 次服务表彰','milestone')}${row('我的理论练习','最近得分 '+state.score+' 分','quiz')}${row('周年权益','查看里程碑','anniversary')}</div>`}
+const messages=[['training','手法复训已安排','11 月 12 日 14:00–16:00'],['rejected','排休申请未通过','11 月 8 日 · 当日人手不足'],['tip','服务小贴士已更新','顾客觉得力度太轻，怎么处理？']];
+function inbox(){return intro('消息','培训安排与门店通知')+`<div class="card">${messages.map(([id,label,desc])=>row(label,desc,id,state.read.has(id)?'›':'<span class="tag">未读</span>')).join('')}</div>`}
+function render(){document.querySelector('.app').classList.toggle('learning-page',state.page==='首页');const screens={'首页':home,'工作台':work,'个人业绩':performance,'我的':mine,'消息':inbox};$('main').innerHTML=screens[state.page]();$('nav').innerHTML=pages.map((page,i)=>`<button data-page="${page}" ${page===state.page?'class="active" aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[i]}"/></svg>${page}</button>`).join('');$('badge').textContent=state.read.size===3?'':3-state.read.size}
+const commissionEntries=[
+ {id:'YJ202611130021',project:'肩颈舒缓',time:'11/13 16:30',duration:60,amount:68},
+ {id:'YJ202611130014',project:'全身舒缓',time:'11/13 14:00',duration:90,amount:96},
+ {id:'YJ202611120032',project:'肩背舒缓',time:'11/12 17:15',duration:60,amount:68}
+];
+// Standalone prototype fixtures for the summary and detail responses.
+const commissionDates={today:'11/13',yesterday:'11/12',currentMonth:'11',lastMonth:'10'};
+const commissionTotals={today:164,yesterday:68,currentMonth:232,lastMonth:0};
+let commissionPeriod='today';
+let commissionMonth='';
+function commissionDetails(){
+ const period=commissionPeriod;
+ const isCustom=period==='custom';
+ const selectedMonth=isCustom?commissionMonth.slice(5):commissionDates[period];
+ const rows=isCustom&&commissionMonth.slice(0,4)!=='2026'?[]:
+  commissionEntries.filter(entry=>entry.time.startsWith(selectedMonth));
+ const total=isCustom?(commissionMonth==='2026-11'?commissionTotals.currentMonth:0):commissionTotals[period];
+ const filters=[['today','今天'],['yesterday','昨天'],['currentMonth','本月'],['lastMonth','上月'],['custom',commissionMonth?commissionMonth.replace('-',''):'筛选']];
+ return `<div class="commission-filter" aria-label="提成日期">${filters.map(([key,label])=>
+  `<button class="soft" data-period="${key}" aria-pressed="${period===key}">${label}</button>`).join('')}</div>
+ ${isCustom?`<label>选择月份<input id="commission-month" type="month" min="2024-06" max="2026-11" value="${commissionMonth||'2026-11'}"></label>`:''}
+ ${rows.length?`<div class="commission-summary"><small>总提成(元)</small><strong>${total.toFixed(2)}</strong></div>
+ <h3 class="section">提成详情</h3>
+ ${rows.map(entry=>`<article class="card commission-entry"><div class="split"><h3>${entry.project}</h3><strong>+${entry.amount.toFixed(2)}</strong></div>
+ <dl><div><dt>上钟时间</dt><dd>2026/${entry.time}</dd></div><div><dt>门店</dt><dd>杭州宝龙店</dd></div><div><dt>项目时长</dt><dd>${entry.duration}分钟</dd></div><div><dt>上钟类型</dt><dd>轮钟</dd></div><div class="commission-order"><dt>订单ID</dt><dd>${entry.id}</dd></div></dl></article>`).join('')}
+ <p>已经到底啦～</p>`:'<p>暂无内容～</p>'}`;
+}
+const detail={
+training:['手法复训','<span class="tag">已安排</span><p>11 月 12 日 14:00–16:00 · 培训部</p><p>本次重点练习肩颈力度控制与服务中确认。复训时段不可预约。</p>'],
+tip:['顾客觉得力度太轻，怎么处理？','<p>开始前问清力度和加强部位。调整后，主动确认「现在这个力度合适吗？」</p><p>下钟后向前台同步顾客偏好，方便下次安排。</p>'],
+story:['记住客人每次都想加强的肩颈','<p>宝龙店 · 贝贝</p><p>上次服务后，贝贝请前台记录顾客希望加强右肩、避开颈前。顾客再次预约时，接待和服务都沿用了这份记录。</p>'],
+leave:['提报排休','<form data-form="leave"><label>排休日期<input type="date" required min="2026-11-11"></label><label>备注<textarea placeholder="选填"></textarea></label><button class="cta">提交主理人审核</button></form>'],
+storyForm:['提报故事','<form data-form="story"><label>提报对象<select><option>自己</option><option>同事</option></select></label><label>故事标题<input required maxlength="40"></label><label>发生了什么<textarea required></textarea></label><button class="cta">提交提报</button></form>'],
+quiz:['理论练习','<form data-form="quiz"><p><strong>顾客反馈肩颈力度偏轻时，下一步怎么做？</strong></p><label><input type="radio" name="answer" value="correct" required> 沟通后逐步调整，并再次确认</label><label><input type="radio" name="answer" value="wrong"> 直接加到最大力度</label><label><input type="radio" name="answer" value="wrong"> 保持原力度做到结束</label><button class="cta">查看解析</button></form>'],
+growth:['升级宝典','<p><strong>中级 → 高级</strong></p><div class="card"><h3>理论练习</h3><div class="meter"><i id="meter"></i></div><p>最近 <span id="score"></span> 分 · 目标 90 分以上</p><button class="soft" data-open="quiz">去刷题</button></div><div class="card"><h3>服务反馈</h3><p>遇到力度不合适，先询问并调整，结束前确认感受。</p></div><p>等级条件与薪资增幅待公布。</p>'],
+milestone:['成长记录','<p>任职 3 个月 · 完成门店带教</p><p>任职 6 个月 · 累计 2 次服务表彰</p>'],
+anniversary:['周年权益','<p>任职满一年后解锁周年里程碑。</p><p>具体权益以门店公布为准。</p>'],
+
+repeat:['30 天复购率','<p>近 30 天复购率 32%。</p>'],
+point:['点钟','<p>本月点钟 12 次。</p>'],
+review:['线上好评','<p>本月收到 16 条线上好评。到店满意度回访单独统计。</p><p>好评率暂未出数。</p>'],
+negative:['负面评价','<p>11 月 7 日 · 手法 · 反馈肩颈力度偏轻</p><p>11 月 9 日 · 服务 · 反馈力度调整后未再次确认</p>'],
+quality:['品质账户','<p>当前 96 分</p><p>11 月 7 日 · 服务流程稽查扣 4 分</p><p>暂无罚单。</p>'],
+rejected:['排休申请未通过','<p>原申请日期　11 月 8 日</p><p>驳回原因　当日人手不足，请重新选择日期。</p>'+button('重新提报','leave')]
+};
+function openDetail(id){
+ const customer=state.assignment;
+ const [title,body]=id==='assignedGuest'
+  ? [customer.name+' · 本次服务',`<p>服务项目　${customer.service}</p><p>力度偏好　${customer.pressure}</p><p>加强部位　${customer.focus}</p><p>避开部位　${customer.avoid}</p><p>常用精油　${customer.oil}</p>`]
+  : detail[id];
+ if(state.page==='消息'&&messages.some(([key])=>key===id)){state.read.add(id);render()}
+ $('title').textContent=title;
+ $('sheet').innerHTML=body;
+ if(id==='growth'){$('meter').style.width=state.score+'%';$('score').textContent=state.score}
+ if(!$('dialog').open)$('dialog').showModal()
+}
+let toastTimer;
+function notice(message){$('toast').textContent=message;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,2300)}
+document.addEventListener('click',event=>{
+ const el=event.target.closest('button');
+ if(event.target===$('dialog')){
+  const bounds=$('dialog').getBoundingClientRect();
+  if(event.clientX<bounds.left||event.clientX>bounds.right||event.clientY<bounds.top||event.clientY>bounds.bottom)$('dialog').close();
+  return
+ }
+ if(!el)return;
+ const {page,open,act,period,workTab}=el.dataset;
+ if(workTab){
+  state.workTab=workTab;
+  render();
+  $('main').scrollTop=0;
+  $('main').querySelector('[data-work-tab="'+workTab+'"]').focus({preventScroll:true});
+ }
+ if(period){
+  commissionPeriod=period;
+  if(period==='custom'&&!commissionMonth)commissionMonth='2026-11';
+  document.querySelector('.work-commission').innerHTML=commissionDetails();
+  $('main').querySelector('[data-period="'+period+'"]').focus({preventScroll:true})
+ }
+ if(page){state.page=page;render();$('main').scrollTop=0}
+ if(open)openDetail(open);
+ if(act==='toggleAssignment'){
+  state.assignment=state.assignment?null:demoAssignment;
+  render();
+  document.querySelector('[data-act="toggleAssignment"]').focus({preventScroll:true})
+ }
+ if(act==='vote'){state.voted=!state.voted;render();notice(state.voted?'已送出藕尖':'已撤回藕尖')}
+ if(el.id==='close')$('dialog').close()
+});
+document.addEventListener('change',event=>{
+ const input=event.target;
+ if(input.id==='commission-month'){
+  if(!input.value||!input.validity.valid)return;
+  commissionMonth=input.value;
+  document.querySelector('.work-commission').innerHTML=commissionDetails();
+  $('commission-month').focus({preventScroll:true});
+  return
+ }
+});
+document.addEventListener('submit',event=>{
+ const form=event.target;
+ event.preventDefault();
+ const kind=form.dataset.form;
+ if(kind==='quiz'){
+  const correct=new FormData(form).get('answer')==='correct';
+  state.score=correct?94:86;
+  $('sheet').innerHTML='<p><strong>'+(correct?'回答正确':'再想一想')+'</strong></p><p>先沟通力度偏好，逐步调整，再请顾客确认感受。</p>'+button('再练一次','quiz');
+  render();return
+ }
+ if(kind==='leave'){state.leave=form.querySelector('input').value;notice('已提报，待主理人审核')}
+ if(kind==='story'){state.story=form.querySelector('input').value;notice('已提报，等待核实')}
+ $('dialog').close();render();
+ const returnTo=kind==='story'?'storyForm':kind;
+ document.querySelector('[data-open="'+returnTo+'"]')?.focus({preventScroll:true})
+});
+render();
+</script>
+</html>
